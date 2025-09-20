@@ -18,10 +18,10 @@ const locationRoutes = require("./routes/location");
 const app = express();
 const server = http.createServer(app);
 
-// Configure Socket.IO with CORS
+// ✅ Configure Socket.IO with open CORS (works for Expo apps)
 const io = new Server(server, {
   cors: {
-    origin: config.corsOrigins,
+    origin: "*", // allow all origins (apps don’t enforce CORS)
     methods: ["GET", "POST", "PUT", "DELETE"],
   },
 });
@@ -36,9 +36,11 @@ connectDB(config.mongoURI);
 app.use(express.json());
 app.use(morgan("dev"));
 app.use(helmet());
+
+// ✅ CORS middleware (open for all since it's an app)
 app.use(
   cors({
-    origin: config.corsOrigins,
+    origin: "*", // allow all
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
@@ -75,7 +77,7 @@ io.on("connection", (socket) => {
   // Shuttle updates
   socket.on("updateShuttleLocation", (data) => {
     console.log("📍 Shuttle update received:", data);
-    io.emit("shuttleLocationUpdated", data); // Emit to all clients
+    io.emit("shuttleLocationUpdated", data);
   });
 
   // Ride updates
